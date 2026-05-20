@@ -1,16 +1,18 @@
 package shopeasy;
 
 /**
- * Stateless helper that computes a final price from a base price,
- * a discount rate, and a tax rate.
+ * Stateless helper that computes a final price from a base price, a discount
+ * rate, and a tax rate.
  *
- * <p>Formula:
+ * <p>
+ * Formula:
  * <pre>
  *   discounted = basePrice * (1 - discountRate / 100)
  *   final      = discounted * (1 + taxRate / 100)
  * </pre>
  *
- * <p><strong>Contracts (Task 3 – Design by Contract):</strong>
+ * <p>
+ * <strong>Contracts (Task 3 – Design by Contract):</strong>
  * Students are required to add {@code assert} statements for pre- and
  * post-conditions as part of Task 3. See the Javadoc on
  * {@link #calculate(double, double, double)} for the expected contracts.
@@ -20,36 +22,49 @@ public class PriceCalculator {
     /**
      * Computes the final price after applying a discount and then tax.
      *
-     * <p><em>Pre-conditions (Task 3):</em>
+     * <p>
+     * <em>Pre-conditions (Task 3):</em>
      * <ul>
-     *   <li>{@code basePrice >= 0}</li>
-     *   <li>{@code 0 <= discountRate <= 100}</li>
-     *   <li>{@code 0 <= taxRate <= 100}</li>
+     * <li>{@code basePrice >= 0}</li>
+     * <li>{@code 0 <= discountRate <= 100}</li>
+     * <li>{@code 0 <= taxRate <= 100}</li>
      * </ul>
      *
-     * <p><em>Post-condition (Task 3):</em> result >= 0
+     * <p>
+     * <em>Post-condition (Task 3):</em> result >= 0
      *
-     * @param basePrice    the original price before any adjustments (>= 0)
+     * @param basePrice the original price before any adjustments (>= 0)
      * @param discountRate the discount percentage to apply, in [0, 100]
-     * @param taxRate      the tax percentage to apply after discount, in [0, 100]
-     * @return             the final price
+     * @param taxRate the tax percentage to apply after discount, in [0, 100]
+     * @return the final price
+     */
+    /**
+     * Calculates the final price after discount and tax.
+     * <p>
+     * Contract: - Pre-condition: base >= 0, 0 <= discount <= 100, 0 <= tax <= 100.
+     * - Post-condition: result >= 0.
      */
     public double calculate(double basePrice, double discountRate, double taxRate) {
         // TODO (Task 3): add assert pre-conditions here
+        assert basePrice >= 0 : "Pre-condition violated: basePrice must be >= 0";
+        assert discountRate >= 0 && discountRate <= 100 : "Pre-condition violated: discountRate must be between 0 and 100";
+        assert taxRate >= 0 && taxRate <= 100 : "Pre-condition violated: taxRate must be between 0 and 100";
 
         double discounted = basePrice * (1.0 - discountRate / 100.0);
-        double withTax    = discounted + (discounted * taxRate / 100.0);
+        double withTax = discounted + (discounted * taxRate / 100.0);
 
         // TODO (Task 3): add assert post-condition here
+        assert withTax >= 0 : "Post-condition violated: Result must be >= 0";
+
         return withTax;
     }
 
     /**
      * Convenience method: applies only a discount, no tax.
      *
-     * @param basePrice    the original price (>= 0)
+     * @param basePrice the original price (>= 0)
      * @param discountRate the discount percentage [0, 100]
-     * @return             the price after discount
+     * @return the price after discount
      */
     public double applyDiscountOnly(double basePrice, double discountRate) {
         return calculate(basePrice, discountRate, 0);
@@ -59,8 +74,8 @@ public class PriceCalculator {
      * Convenience method: applies only tax, no discount.
      *
      * @param basePrice the original price (>= 0)
-     * @param taxRate   the tax percentage [0, 100]
-     * @return          the price after tax
+     * @param taxRate the tax percentage [0, 100]
+     * @return the price after tax
      */
     public double applyTaxOnly(double basePrice, double taxRate) {
         return calculate(basePrice, 0, taxRate);

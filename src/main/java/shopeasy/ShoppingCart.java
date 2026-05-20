@@ -7,47 +7,69 @@ import java.util.List;
 /**
  * A mutable shopping cart that holds {@link CartItem}s.
  *
- * <p><strong>Contracts (Task 3 – Design by Contract):</strong>
+ * <p>
+ * <strong>Contracts (Task 3 – Design by Contract):</strong>
  * <ul>
- *   <li>Students are required to add {@code assert} pre-/post-condition statements
- *       to {@link #addItem(Product, int)} and {@link #applyDiscount(double)} as
- *       part of Task 3. The Javadoc below describes the expected contracts.</li>
+ * <li>Students are required to add {@code assert} pre-/post-condition
+ * statements to {@link #addItem(Product, int)} and
+ * {@link #applyDiscount(double)} as part of Task 3. The Javadoc below describes
+ * the expected contracts.</li>
  * </ul>
  *
- * <p><strong>Invariant:</strong> {@link #total()} is always &gt;= 0 after any operation.
+ * <p>
+ * <strong>Invariant:</strong> {@link #total()} is always &gt;= 0 after any
+ * operation.
  */
 public class ShoppingCart {
 
     private final List<CartItem> items = new ArrayList<>();
 
     /**
-     * Adds a product to the cart. If the product is already present, the quantities
-     * are combined into the existing cart line.
+     * Adds a product to the cart. If the product is already present, the
+     * quantities are combined into the existing cart line.
      *
-     * <p><em>Pre-condition (Task 3):</em> {@code product != null}, {@code quantity > 0}<br>
-     * <em>Post-condition (Task 3):</em> cart contains an entry for {@code product};
-     * total number of distinct items in the cart >= previous count.
+     * <p>
+     * <em>Pre-condition (Task 3):</em> {@code product != null},
+     * {@code quantity > 0}<br>
+     * <em>Post-condition (Task 3):</em> cart contains an entry for
+     * {@code product}; total number of distinct items in the cart >= previous
+     * count.
      *
-     * @param product  the product to add (must not be null)
+     * @param product the product to add (must not be null)
      * @param quantity number of units to add (must be > 0)
+     */
+    /**
+     * Adds an item to the shopping cart.
+     * <p>
+     * Contract: - Pre-condition: product != null, qty > 0. - Post-condition:
+     * cart size increased by one. - Invariant: total() is always >= 0.
      */
     public void addItem(Product product, int quantity) {
         // TODO (Task 3): add assert pre-condition here
+        assert product != null : "Pre-condition violated: product must not be null";
+        assert quantity > 0 : "Pre-condition violated: quantity must be > 0";
+
+        // Save the initial state for post-condition checks
+        int initialItemCount = this.itemCount();
 
         for (CartItem item : items) {
             if (item.getProduct().getId().equals(product.getId())) {
                 item.setQuantity(item.getQuantity() + quantity);
                 // TODO (Task 3): add assert post-condition here
+                assert this.itemCount() >= initialItemCount : "Post-condition violated: Item count should not decrease";
+                assert total() >= 0 : "Invariant violated: total must be >= 0";
                 return;
             }
         }
         items.add(new CartItem(product, quantity));
         // TODO (Task 3): add assert post-condition here
+        assert this.itemCount() == initialItemCount + 1 : "Post-condition violated: cart size increased by one";
+        assert total() >= 0 : "Invariant violated: total must be >= 0";
     }
 
     /**
-     * Removes all units of the given product from the cart.
-     * If the product is not in the cart, this method does nothing.
+     * Removes all units of the given product from the cart. If the product is
+     * not in the cart, this method does nothing.
      *
      * @param productId the id of the product to remove
      */
@@ -59,11 +81,13 @@ public class ShoppingCart {
      * Updates the quantity of an existing cart line.
      *
      * @param productId the id of the product whose quantity should change
-     * @param quantity  the new quantity (must be > 0)
+     * @param quantity the new quantity (must be > 0)
      * @throws IllegalArgumentException if the product is not in the cart
      */
     public void updateQuantity(String productId, int quantity) {
-        if (quantity <= 0) throw new IllegalArgumentException("Quantity must be > 0");
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be > 0");
+        }
         for (CartItem item : items) {
             if (item.getProduct().getId().equals(productId)) {
                 item.setQuantity(quantity);
@@ -74,24 +98,36 @@ public class ShoppingCart {
     }
 
     /**
-     * Applies a percentage discount to the current total and returns the discounted total.
-     * The discount is applied <em>on top of</em> the raw subtotal; it does not persist
-     * between calls (i.e., calling this method twice with 10% does not compound discounts).
+     * Applies a percentage discount to the current total and returns the
+     * discounted total. The discount is applied <em>on top of</em> the raw
+     * subtotal; it does not persist between calls (i.e., calling this method
+     * twice with 10% does not compound discounts).
      *
-     * <p><em>Pre-condition (Task 3):</em> {@code 0 <= discountRate <= 100}<br>
-     * <em>Post-condition (Task 3):</em> returned value &lt;= {@link #total()} when
-     * {@code discountRate > 0}.
+     * <p>
+     * <em>Pre-condition (Task 3):</em> {@code 0 <= discountRate <= 100}<br>
+     * <em>Post-condition (Task 3):</em> returned value &lt;= {@link #total()}
+     * when {@code discountRate > 0}.
      *
      * @param discountRate percentage discount to apply, in [0, 100]
      * @return the total after applying the discount
      */
+    /**
+     * Applies a percentage discount to the cart total.
+     * <p>
+     * Contract: - Pre-condition: 0 <= rate <= 100. - Post-condition: total() < previous total (if rate
+     * > 0). - Invariant: total() is always >= 0.
+     */
     public double applyDiscount(double discountRate) {
         // TODO (Task 3): add assert pre-condition here
+        assert discountRate >= 0 && discountRate <= 100 : "Pre-condition violated: discountRate must be between 0 and 100";
 
         double rawTotal = total();
         double discounted = rawTotal - (rawTotal * discountRate / 100);
 
         // TODO (Task 3): add assert post-condition here
+        assert discountRate == 0 || discounted <= rawTotal : "Post-condition violated: discounted total must be <= previous total";
+        assert discounted >= 0 : "Invariant violated: total must be >= 0";
+
         return discounted;
     }
 
@@ -109,7 +145,8 @@ public class ShoppingCart {
     }
 
     /**
-     * Returns the number of distinct product lines in the cart (not the total unit count).
+     * Returns the number of distinct product lines in the cart (not the total
+     * unit count).
      */
     public int itemCount() {
         return items.size();
