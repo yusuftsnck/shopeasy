@@ -1,6 +1,7 @@
 package shopeasy;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.within;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -110,6 +111,20 @@ class PriceCalculatorSpecTest {
     @Test
     void taxRateJustBelowHundred() {
         assertThat(calculator.calculate(100.0, 10.0, 99.0)).isCloseTo(179.1, within(0.001));
+    }
+
+    //Boundary (Off-point): Negative base price should violate pre-condition
+    @ParameterizedTest(name = "Invalid inputs: base={0}, disc={1}%, tax={2}%")
+    @CsvSource({
+        "-10.0, 10.0, 10.0", // Negative base price
+        "100.0, -5.0, 10.0", // Negative discount
+        "100.0, 105.0, 10.0", // Discount > 100
+        "100.0, 10.0, -5.0", // Negative tax
+        "100.0, 10.0, 105.0" // Tax > 100
+    })
+    void testInvalidInputsShouldThrowAssertionError(double base, double disc, double tax) {
+        assertThatThrownBy(() -> calculator.calculate(base, disc, tax))
+                .isInstanceOf(AssertionError.class);
     }
 
     // -----------------------------------------------------------------------
