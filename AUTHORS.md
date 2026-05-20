@@ -1,6 +1,5 @@
 # Authors
 
-| Name | Student ID |
-|------|------------|
-|      |            |
-|      |            |
+|         Name        | Student ID |
+|---------------------|------------|
+| Yusuf Şaban Tosuncuk| 210717004  |
